@@ -3,18 +3,40 @@
 #include "mnist.h"
 
 
+float dist_sq( float* v1, float* v2) {
+float d=0;
+for(int i=0; i<784; i++) {
+	d+= (v1[i]- v2[i])*(v1[i]- v2[i]);
+} return d;
+}
+
+
 
 int main(int argc, char** argv)
 {
-    if(argc < 3) {fprintf(stderr, "Please provide two mnist file\n"); exit(1); }
-    string path = argv[2];
+    float** images = read_mnist( "train-images.idx3-ubyte");
+	float* labels =read_labels( "train-labels.idx3-ubyte");
+	float** test_images = read_mnist("t10k-images.idx3-ubyte");
+	
+	for (int i=0; i<10000; i++){
+		float mind= -1;
+			int NN;
+		for (int j=0; j<60000; j++){
+			
+			float d= dist_sq(test_images[i], images [j]);
+				if (d<mind || mind==-1){
+					mind=d;
+					NN= j; 
+			}
+		}
+	}
 
-    float** data = read_mnist(path);
-	float* data = read_labels(path_labels);
 
-    for(int i=0; i<60000; i++) {
-        printf("%u, label=%u\n", i, (int)labels[i], i); // label...est en float et ont le force a etre en int.. (int)labels[i], i) //
-        save_jpg(data[i], 28, 28, "%u/%04u.jpg", (int)labels[i], i);
+
+
+		int inference= labels [NN]; // label...est en float et ont le force a etre en int.. (int)labels[i], i) //
+        save_jpg(test_images[i], 28, 28, "%u/%u.jpg", inference, i);
     }
     return 0;
 }
+
